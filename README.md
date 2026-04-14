@@ -86,3 +86,18 @@ rm uploads/*
 ```
 
 La base sera recréée au prochain lancement.
+
+## Vulnérabilités à trouver
+
+- Injection SQL
+- Hachage de mot de passe faible (MD5, sans sel)
+- Clé secrète codée en dur
+- Élévation de privilèges
+- Contrôle d'accès cassé x2 (1x IDOR)
+- Redirection ouverte
+- Traversée de répertoire
+- Upload de fichier non restreint
+- XSS stockée
+- XSS réfléchie
+- Absence de protection CSRF
+- Fuite de secret
