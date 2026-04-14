@@ -23,5 +23,6 @@ CREATE TABLE IF NOT EXISTS notes (
     title      TEXT    NOT NULL,
     content    TEXT    NOT NULL,
     created_at TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_public  INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY (owner_id) REFERENCES users(id)
 );

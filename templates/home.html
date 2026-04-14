@@ -1,4 +1,4 @@
-{# Page d'accueil : liste des notes de l'utilisateur. #}
+{# Page d'accueil : mes notes + notes publiques de la communauté. #}
 {% extends "base.html" %}
 
 {% block content %}
@@ -8,22 +8,37 @@
     <a class="btn" href="{{ url_for('note_new') }}">+ Nouvelle note</a>
 </p>
 
-{% if notes %}
+<h2>Mes notes</h2>
+{% if own_notes %}
     <ul class="note-list">
-        {#
-            On parcourt toutes les notes reçues depuis app.py et on
-            affiche un élément <li> pour chacune.
-        #}
-        {% for note in notes %}
+        {% for note in own_notes %}
             <li>
                 <a href="{{ url_for('note_view', note_id=note.id) }}">
                     {{ note.title }}
                 </a>
+                {% if note.is_public %}
+                    <span class="note-badge">public</span>
+                {% endif %}
                 <span class="note-date">{{ note.created_at }}</span>
             </li>
         {% endfor %}
     </ul>
 {% else %}
     <p>Vous n'avez pas encore de note.</p>
+{% endif %}
+
+{% if public_notes %}
+    <h2>Notes publiques de la communauté</h2>
+    <ul class="note-list">
+        {% for note in public_notes %}
+            <li>
+                <a href="{{ url_for('note_view', note_id=note.id) }}">
+                    {{ note.title }}
+                </a>
+                <span class="note-author">par {{ note.author }}</span>
+                <span class="note-date">{{ note.created_at }}</span>
+            </li>
+        {% endfor %}
+    </ul>
 {% endif %}
 {% endblock %}

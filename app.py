@@ -203,12 +203,21 @@ def home():
     """
     user = current_user()
     conn = db.get_db()
-    notes = conn.execute(
+    own_notes = conn.execute(
         "SELECT * FROM notes WHERE owner_id = ? ORDER BY created_at DESC",
         (user["id"],),
     ).fetchall()
+    public_notes = conn.execute(
+        "SELECT notes.*, users.username AS author "
+        "FROM notes JOIN users ON users.id = notes.owner_id "
+        "WHERE notes.is_public = 1 AND notes.owner_id != ? "
+        "ORDER BY notes.created_at DESC",
+        (user["id"],),
+    ).fetchall()
     conn.close()
-    return render_template("home.html", user=user, notes=notes)
+    return render_template(
+        "home.html", user=user, own_notes=own_notes, public_notes=public_notes
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -224,6 +233,7 @@ def note_new():
     if request.method == "POST":
         title = request.form.get("title", "").strip()
         content = request.form.get("content", "")
+        is_public = 1 if request.form.get("is_public") else 0
 
         if not title:
             return render_template(
@@ -232,8 +242,9 @@ def note_new():
 
         conn = db.get_db()
         conn.execute(
-            "INSERT INTO notes (owner_id, title, content) VALUES (?, ?, ?)",
-            (user["id"], title, content),
+            "INSERT INTO notes (owner_id, title, content, is_public) "
+            "VALUES (?, ?, ?, ?)",
+            (user["id"], title, content, is_public),
         )
         conn.commit()
         conn.close()
@@ -261,7 +272,8 @@ def note_view(note_id):
 @app.route("/note/<int:note_id>/edit", methods=["GET", "POST"])
 @login_required
 def note_edit(note_id):
-    """Modifie une note existante."""
+    """Modifie une note existante. Seul l'auteur peut éditer."""
+    user = current_user()
     conn = db.get_db()
     note = conn.execute(
         "SELECT * FROM notes WHERE id = ?", (note_id,)
@@ -271,13 +283,19 @@ def note_edit(note_id):
         conn.close()
         abort(404)
 
+    if note["owner_id"] != user["id"]:
+        conn.close()
+        abort(403)
+
     if request.method == "POST":
         title = request.form.get("title", "").strip()
         content = request.form.get("content", "")
+        is_public = 1 if request.form.get("is_public") else 0
 
         conn.execute(
-            "UPDATE notes SET title = ?, content = ? WHERE id = ?",
-            (title, content, note_id),
+            "UPDATE notes SET title = ?, content = ?, is_public = ? "
+            "WHERE id = ?",
+            (title, content, is_public, note_id),
         )
         conn.commit()
         conn.close()
@@ -290,8 +308,21 @@ def note_edit(note_id):
 @app.route("/note/<int:note_id>/delete", methods=["POST"])
 @login_required
 def note_delete(note_id):
-    """Supprime une note."""
+    """Supprime une note. Seul l'auteur peut supprimer."""
+    user = current_user()
     conn = db.get_db()
+    note = conn.execute(
+        "SELECT owner_id FROM notes WHERE id = ?", (note_id,)
+    ).fetchone()
+
+    if note is None:
+        conn.close()
+        abort(404)
+
+    if note["owner_id"] != user["id"]:
+        conn.close()
+        abort(403)
+
     conn.execute("DELETE FROM notes WHERE id = ?", (note_id,))
     conn.commit()
     conn.close()

@@ -16,6 +16,12 @@
         <textarea name="content" rows="10">{{ note.content }}</textarea>
     </label>
 
+    <label>
+        <input type="checkbox" name="is_public" value="1"
+               {% if note.is_public %}checked{% endif %}>
+        Rendre cette note publique (visible par tous)
+    </label>
+
     <button type="submit">Enregistrer</button>
 </form>
 
