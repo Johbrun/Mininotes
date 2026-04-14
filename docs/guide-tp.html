@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>MiniNotes — Guide des vulnérabilités</title>
+    <style>
+        :root {
+            --bg: #00050B;
+            --surface: #0a1220;
+            --surface-alt: #0e1828;
+            --border: #1b2b44;
+            --text: #e6edf3;
+            --muted: #8a97a8;
+            --cyan: #5BBDCB;
+            --cyan-dark: #3d9ca9;
+            --orange: #FF7100;
+            --orange-dark: #d95f00;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.55;
+        }
+
+        header {
+            background:
+                radial-gradient(ellipse at 30% 0%, rgba(91, 189, 203, 0.18) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 100%, rgba(255, 113, 0, 0.14) 0%, transparent 60%),
+                var(--surface);
+            color: var(--text);
+            padding: 3rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        header h1 {
+            margin: 0 0 0.4rem 0;
+            font-size: 2.1rem;
+            color: var(--cyan);
+            letter-spacing: 0.02em;
+        }
+
+        header h1 .accent { color: var(--orange); }
+
+        header p {
+            margin: 0;
+            color: var(--muted);
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .intro {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 1.5rem 2rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .intro h2 {
+            margin-top: 0;
+            color: var(--cyan);
+        }
+
+        .intro ul { padding-left: 1.3rem; }
+        .intro li { margin-bottom: 0.3rem; }
+        .intro strong { color: var(--orange); }
+
+        main {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem 3rem 1rem;
+        }
+
+        .vuln {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            border-left: 5px solid var(--cyan);
+        }
+
+        .vuln-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            background: var(--surface-alt);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .vuln-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.2rem;
+            height: 2.2rem;
+            background: var(--cyan);
+            color: var(--bg);
+            font-weight: bold;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .vuln-title {
+            margin: 0;
+            font-size: 1.15rem;
+            color: var(--text);
+        }
+
+        .vuln-tag {
+            margin-left: auto;
+            font-size: 0.75rem;
+            background: rgba(91, 189, 203, 0.12);
+            color: var(--cyan);
+            padding: 0.25rem 0.65rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .vuln-body {
+            padding: 1.2rem 1.5rem;
+        }
+
+        .challenge {
+            background: rgba(255, 113, 0, 0.08);
+            border-left: 3px solid var(--orange);
+            padding: 0.7rem 1rem;
+            margin: 0 0 1rem 0;
+            border-radius: 0 4px 4px 0;
+            color: var(--text);
+        }
+
+        .challenge strong { color: var(--orange); }
+
+        details {
+            margin-top: 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--surface-alt);
+            transition: border-color 0.2s;
+        }
+
+        details[open] {
+            border-color: var(--cyan);
+        }
+
+        summary {
+            padding: 0.7rem 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--cyan);
+            user-select: none;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        summary:hover { color: var(--orange); }
+
+        summary::-webkit-details-marker { display: none; }
+
+        summary::before {
+            content: "▸";
+            color: var(--orange);
+            transition: transform 0.2s;
+            display: inline-block;
+        }
+
+        details[open] > summary::before {
+            transform: rotate(90deg);
+        }
+
+        .hint-num {
+            background: var(--orange);
+            color: var(--bg);
+            font-size: 0.7rem;
+            padding: 0.12rem 0.55rem;
+            border-radius: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        details > *:not(summary) {
+            padding: 0 1rem 0.8rem 1rem;
+            color: var(--text);
+        }
+
+        code {
+            background: var(--bg);
+            padding: 0.1rem 0.4rem;
+            border-radius: 3px;
+            font-family: "SF Mono", Menlo, Consolas, monospace;
+            font-size: 0.9em;
+            color: var(--orange);
+            border: 1px solid var(--border);
+        }
+
+        pre {
+            background: var(--bg);
+            color: var(--text);
+            padding: 0.9rem 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            font-family: "SF Mono", Menlo, Consolas, monospace;
+            font-size: 0.85rem;
+            margin: 0.6rem 1rem 0.8rem 1rem;
+        }
+
+        pre code {
+            background: transparent;
+            border: none;
+            color: var(--cyan);
+            padding: 0;
+        }
+
+        footer {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem 3rem 1rem;
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        /* Color variants for different vulnerability "families".
+           Toutes restent dans la palette cyan / orange pour conserver
+           l'identité Asymis. L'intensité change selon la famille. */
+        .vuln.fam-inject {
+            border-left-color: var(--orange);
+        }
+        .vuln.fam-inject .vuln-number {
+            background: var(--orange);
+            color: var(--bg);
+        }
+        .vuln.fam-inject .vuln-tag {
+            background: rgba(255, 113, 0, 0.12);
+            color: var(--orange);
+        }
+
+        .vuln.fam-authz {
+            border-left-color: var(--cyan);
+        }
+        .vuln.fam-authz .vuln-number {
+            background: var(--cyan);
+            color: var(--bg);
+        }
+        .vuln.fam-authz .vuln-tag {
+            background: rgba(91, 189, 203, 0.12);
+            color: var(--cyan);
+        }
+
+        .vuln.fam-session {
+            border-left-color: var(--cyan-dark);
+        }
+        .vuln.fam-session .vuln-number {
+            background: var(--cyan-dark);
+            color: var(--bg);
+        }
+        .vuln.fam-session .vuln-tag {
+            background: rgba(61, 156, 169, 0.15);
+            color: var(--cyan);
+        }
+
+        .vuln.fam-crypto {
+            border-left-color: var(--orange-dark);
+        }
+        .vuln.fam-crypto .vuln-number {
+            background: var(--orange-dark);
+            color: var(--bg);
+        }
+        .vuln.fam-crypto .vuln-tag {
+            background: rgba(217, 95, 0, 0.15);
+            color: var(--orange);
+        }
+
+        .vuln.fam-misc {
+            border-left-color: var(--muted);
+        }
+        .vuln.fam-misc .vuln-number {
+            background: var(--muted);
+            color: var(--bg);
+        }
+        .vuln.fam-misc .vuln-tag {
+            background: rgba(138, 151, 168, 0.15);
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>MiniNotes <span class="accent">— Guide des vulnérabilités</span></h1>
+    <p>
+        11 failles classiques se cachent dans l'application.
+        À vous de les trouver, de les exploiter, puis de les corriger.
+    </p>
+</header>
+
+<section class="intro">
+    <h2>Mode d'emploi</h2>
+    <ul>
+        <li>Pour chaque vulnérabilité, un <strong>défi</strong> vous est donné : c'est l'objectif concret à atteindre.</li>
+        <li>Si vous êtes coincé·e, vous pouvez révéler <strong>l'indice 1</strong> (piste générale), puis <strong>l'indice 2</strong> (piste précise).</li>
+        <li>Essayez de chercher sans indice d'abord, c'est là que vous apprenez le plus.</li>
+        <li>Une fois la faille exploitée, ouvrez le code et proposez un correctif, puis relancez l'app.</li>
+    </ul>
+    <p><strong>Outils utiles :</strong> votre navigateur, ses outils développeur (F12), et <code>curl</code> pour envoyer des requêtes personnalisées.</p>
+</section>
+
+<main>
+
+    <!-- 1. SQL Injection -->
+    <article class="vuln fam-inject">
+        <div class="vuln-header">
+            <span class="vuln-number">1</span>
+            <h3 class="vuln-title">Injection SQL</h3>
+            <span class="vuln-tag">Injection</span>
+        </div>
+        <div class="vuln-body">
+            <p class="challenge">
+                <strong>Défi :</strong> connectez-vous en tant qu'administrateur <em>sans</em>
+                connaître son mot de passe, en utilisant uniquement le formulaire de connexion.
+            </p>
+
+            <details>
+                <summary><span class="hint-num">1</span> Indice</summary>
+                <p>
+                    Ce que vous tapez dans un formulaire est envoyé au serveur, qui s'en sert
+                    pour interroger la base de données.
+                    Et si le champ <em>Nom d'utilisateur</em> n'était pas simplement lu comme du texte,
+                    mais comme du… SQL ?
+                </p>
+            </details>
+
+            <details>
+                <summary><span class="hint-num">2</span> Indice</summary>
+                <p>
+                    En SQL, le caractère <code>'</code> ferme une chaîne de caractères, et
+                    <code>--</code> (suivi d'un espace) commente le reste de la ligne.
+                    Essayez <code>admin'-- </code> comme nom d'utilisateur.
+                </p>
+            </details>
+        </div>
+    </article>
+
+    <!-- 2. Stored XSS -->
+    <article class="vuln fam-inject">
+        <div class="vuln-header">
+            <span class="vuln-number">2</span>
+            <h3 class="vuln-title">XSS stocké (Stored XSS)</h3>
+            <span class="vuln-tag">Injection</span>
+        </div>
+        <div class="vuln-body">
+            <p class="challenge">
+                <strong>Défi :</strong> faites apparaître une boîte d'alerte JavaScript
+                (<code>alert(1)</code>) à chaque fois qu'un visiteur consulte l'une de vos notes.
+            </p>
+
+            <details>
+                <summary><span class="hint-num">1</span> Indice</summary>
+                <p>
+                    Le contenu d'une note est affiché tel quel dans la page.
+                    Que se passe-t-il si ce contenu est du HTML… ou du JavaScript ?
+                </p>
+            </details>
+
+            <details>
+                <summary><span class="hint-num">2</span> Indice</summary>
+                <p>
+                    Créez une note dont le <em>contenu</em> est :
+                </p>
+                <pre><code>&lt;script&gt;alert(1)&lt;/script&gt;</code></pre>
+                <p>
+                    Puis ouvrez cette note. Regardez aussi ce que voit un autre utilisateur
+                    (voir la vulnérabilité n°4) qui ouvre la même note.
+                </p>
+            </details>
+        </div>
+    </article>
+
+    <!-- 3. Reflected XSS -->
+    <article class="vuln fam-inject">
+        <div class="vuln-header">
+            <span class="vuln-number">3</span>
+            <h3 class="vuln-title">XSS réfléchi (Reflected XSS)</h3>
+            <span class="vuln-tag">Injection</span>
+        </div>
+        <div class="vuln-body">
+            <p class="challenge">
+                <strong>Défi :</strong> construisez une URL qui, lorsqu'on la visite en étant connecté,
+                fait s'exécuter du JavaScript — sans que rien n'ait été stocké côté serveur.
+            </p>
+
+            <details>
+                <summary><span class="hint-num">1</span> Indice</summary>
+                <p>
+                    Cherchez une page où <em>ce que vous écrivez dans l'URL est réaffiché tel quel</em>
+                    dans le HTML. Il y en a une facile à trouver dans la barre de navigation.
+                </p>
+            </details>
+
+            <details>
+                <summary><span class="hint-num">2</span> Indice</summary>
+                <p>
+                    La page de recherche affiche votre terme : <code>/search?q=<em>terme</em></code>.
+                    Remplacez <em>terme</em> par :
+                </p>
+                <pre><code>&lt;svg/onload=alert(1)&gt;</code></pre>
+            </details>
+        </div>
+    </article>
+
+    <!-- 4. IDOR -->
+    <article class="vuln fam-authz">
+        <div class="vuln-header">
+            <span class="vuln-number">4</span>
+            <h3 class="vuln-title">IDOR — Accès aux notes d'autrui</h3>
+            <span class="vuln-tag">Autorisation</span>
+        </div>
+        <div class="vuln-body">
+            <p class="challenge">
+                <strong>Défi :</strong> lisez, modifiez ou supprimez une note qui <em>ne vous appartient pas</em>
+                (par exemple celle de l'utilisateur <code>admin</code>), avec votre propre compte.
+            </p>
+
+            <details>
+                <summary><span class="hint-num">1</span> Indice</summary>
+                <p>
+                    Quand vous consultez une de vos notes, regardez attentivement la barre d'adresse.
+                    Qu'y a-t-il dans l'URL ? Est-ce une donnée qu'on pourrait changer ?
+                </p>
+            </details>
+
+            <details>
+                <summary><span class="hint-num">2</span> Indice</summary>
+                <p>
+                    Les URLs sont du type <code>/note/42</code>, <code>/note/42/edit</code>,
+                    <code>/note/42/delete</code>. Changez le nombre : le serveur vérifie-t-il vraiment
+                    que la note vous appartient ? Essayez <code>/note/1</code> avec un compte
+                    qui n'est pas celui de <code>admin</code>.
+                </p>
+            </details>
+        </div>
+    </article>
+
+    <!-- 5. Weak hashing -->
+    <article class="vuln fam-crypto">
+        <div class="vuln-header">
+            <span class="vuln-number">5</span>
+            <h3 class="vuln-title">Stockage faible des mots de passe</h3>
+            <span class="vuln-tag">Cryptographie</span>
+        </div>
+        <div class="vuln-body">
+            <p class="challenge">
+                <strong>Défi :</strong> en supposant que vous ayez récupéré la base de données
+                (voir vulnérabilité n°9), retrouvez le mot de passe en clair d'un utilisateur
+                à partir de son empreinte stockée.
+            </p>
+
+            <details>
+                <summary><span class="hint-num">1</span> Indice</summary>
+                <p>
+                    Les mots de passe ne sont pas stockés en clair, mais sous forme d'<em>empreinte</em>
+                    (hash). Toutes les fonctions de hachage ne se valent pas en sécurité.
+                    Comptez les caractères d'une empreinte : cela vous dit quel algorithme a été utilisé.
+                </p>
+            </details>
+
+            <details>
+                <summary><span class="hint-num">2</span> Indice</summary>
+                <p>
+                    Une empreinte de 32 caractères hexadécimaux = MD5. Cet algorithme est cassable en
+                    quelques secondes. Collez l'empreinte sur
+                    <code>crackstation.net</code>, ou utilisez <code>hashcat -m 0</code>.
+                    Regardez aussi s'il y a du <em>sel</em> (salt).
+                </p>
+            </details>
+        </div>
+    </article>
+
+    <!-- 6. CSRF -->
+    <article class="vuln fam-session">
+        <div class="vuln-header">
+            <span class="vuln-number">6</span>
+            <h3 class="vuln-title">CSRF — Requête forgée</h3>
+            <span class="vuln-tag">Session</span>
+        </div>
+        <div class="vuln-body">
+            <p class="challenge">
+                <strong>Défi :</strong> fabriquez une page HTML <em>externe</em> à MiniNotes qui,
+                lorsqu'une victime connectée la visite, supprime automatiquement une de ses notes.
+            </p>
+
+            <details>
+                <summary><span class="hint-num">1</span> Indice</summary>
+                <p>
+                    Votre navigateur envoie <em>automatiquement</em> le cookie de session à MiniNotes
+                    pour <em>toute</em> requête qui part vers <code>localhost:5000</code>, même si la
+                    requête est déclenchée par un autre site. Est-ce que MiniNotes se protège de ça ?
+                </p>
+            </details>
+
+            <details>
+                <summary><span class="hint-num">2</span> Indice</summary>
+                <p>
+                    Créez un fichier <code>attaque.html</code> contenant un formulaire qui
+                    poste vers la route de suppression et qui se soumet tout seul en JavaScript :
+                </p>
+                <pre><code>&lt;form id="f" method="post"
+      action="http://localhost:5000/note/1/delete"&gt;&lt;/form&gt;
+&lt;script&gt;document.getElementById('f').submit();&lt;/script&gt;</code></pre>
+                <p>
+                    Ouvrez le fichier dans un navigateur où vous êtes connecté à MiniNotes.
+                    Cherchez ensuite ce qu'est un <em>jeton CSRF</em>.
+                </p>
+            </details>
+        </div>
+    </article>
+
+    <!-- 7. Mass Assignment -->
+    <article class="vuln fam-authz">
+        <div class="vuln-header">
+            <span class="vuln-number">7</span>
+            <h3 class="vuln-title">Mass Assignment — Devenir admin à l'inscription</h3>
+            <span class="vuln-tag">Autorisation</span>
+        </div>
+        <div class="vuln-body">
+            <p class="challenge">
+                <strong>Défi :</strong> créez un compte qui est directement administrateur,
+                sans jamais passer par un autre administrateur.
+            </p>
+
+            <details>
+                <summary><span class="hint-num">1</span> Indice</summary>
+                <p>
+                    Le formulaire d'inscription ne montre que deux champs,
+                    mais la table <code>users</code> dans la base en contient plus (voir
+                    <code>schema.sql</code>). Le serveur fait-il la différence entre ce que
+                    <em>le formulaire</em> permet d'envoyer et ce qu'<em>une requête HTTP</em>
+                    peut envoyer ?
+                </p>
+            </details>
+
+            <details>
+                <summary><span class="hint-num">2</span> Indice</summary>
+                <p>
+                    Envoyez vous-même une requête d'inscription avec <code>curl</code>, en y ajoutant
+                    un champ qui n'existe pas dans le formulaire :
+                </p>
+                <pre><code>curl -X POST http://localhost:5000/register \
+  -d "username=evil&amp;password=pwn&amp;is_admin=1"</code></pre>
+                <p>Puis connectez-vous avec <code>evil</code>/<code>pwn</code> et allez voir /admin.</p>
+            </details>
+        </div>
+    </article>
+
+    <!-- 8. Open Redirect -->
+    <article class="vuln fam-session">
+        <div class="vuln-header">
+            <span class="vuln-number">8</span>
+            <h3 class="vuln-title">Redirection ouverte (Open Redirect)</h3>
+            <span class="vuln-tag">Session</span>
+        </div>
+        <div class="vuln-body">
+            <p class="challenge">
+                <strong>Défi :</strong> construisez un lien qui commence par l'URL de MiniNotes,
+                mais qui finit par envoyer la victime sur un site que vous contrôlez
+                (par exemple <code>https://example.com</code>) après sa connexion.
+            </p>
+
+            <details>
+                <summary><span class="hint-num">1</span> Indice</summary>
+                <p>
+                    Quand vous essayez d'aller sur une page protégée sans être connecté, le site
+                    garde en mémoire <em>où vous vouliez aller</em> pour vous y envoyer après la
+                    connexion. Où est stockée cette destination ?
+                </p>
+            </details>
+
+            <details>
+                <summary><span class="hint-num">2</span> Indice</summary>
+                <p>
+                    Regardez l'URL <code>/login?next=...</code>. Le serveur vérifie-t-il que la
+                    destination reste sur son propre domaine ? Essayez :
+                </p>
+                <pre><code>http://localhost:5000/login?next=https://example.com</code></pre>
+            </details>
+        </div>
+    </article>
+
+    <!-- 9. Path Traversal -->
+    <article class="vuln fam-misc">
+        <div class="vuln-header">
+            <span class="vuln-number">9</span>
+            <h3 class="vuln-title">Traversée de chemin (Path Traversal)</h3>
+            <span class="vuln-tag">Accès fichiers</span>
+        </div>
+        <div class="vuln-body">
+            <p class="challenge">
+                <strong>Défi :</strong> téléchargez un fichier qui ne devrait pas être accessible
+                aux utilisateurs de MiniNotes — par exemple la base de données
+                (<code>data/app.db</code>) ou le code source (<code>app.py</code>).
+            </p>
+
+            <details>
+                <summary><span class="hint-num">1</span> Indice</summary>
+                <p>
+                    Une route de l'application sert des fichiers depuis un dossier
+                    (<code>uploads/</code>). Ce dossier est-il vraiment étanche ? Un nom de fichier
+                    peut-il "remonter" dans l'arborescence ?
+                </p>
+            </details>
+
+            <details>
+                <summary><span class="hint-num">2</span> Indice</summary>
+                <p>
+                    Sous Linux, <code>..</code> désigne le dossier parent. Essayez d'injecter ce
+                    motif dans l'URL qui sert les fichiers uploadés :
+                </p>
+                <pre><code>http://localhost:5000/uploads/../data/app.db
+http://localhost:5000/uploads/../app.py</code></pre>
+                <p>
+                    Si le navigateur refuse les <code>../</code>, encodez-les :
+                    <code>..%2F</code>.
+                </p>
+            </details>
+        </div>
+    </article>
+
+    <!-- 10. Arbitrary File Upload -->
+    <article class="vuln fam-misc">
+        <div class="vuln-header">
+            <span class="vuln-number">10</span>
+            <h3 class="vuln-title">Upload de fichier arbitraire</h3>
+            <span class="vuln-tag">Accès fichiers</span>
+        </div>
+        <div class="vuln-body">
+            <p class="challenge">
+                <strong>Défi :</strong> uploadez un fichier qui n'est <em>pas</em> une image,
+                et faites-le exécuter du JavaScript quand un autre utilisateur visite son URL.
+            </p>
+
+            <details>
+                <summary><span class="hint-num">1</span> Indice</summary>
+                <p>
+                    La page de profil permet d'uploader un avatar. L'application contrôle-t-elle
+                    vraiment que le fichier envoyé est une image ? Regardez quel type de contenu
+                    est ensuite renvoyé quand on visite <code>/uploads/nom_du_fichier</code>.
+                </p>
+            </details>
+
+            <details>
+                <summary><span class="hint-num">2</span> Indice</summary>
+                <p>
+                    Créez un fichier <code>xss.html</code> contenant :
+                </p>
+                <pre><code>&lt;script&gt;alert('XSS depuis /uploads/')&lt;/script&gt;</code></pre>
+                <p>
+                    Uploadez-le comme avatar, puis visitez
+                    <code>http://localhost:5000/uploads/xss.html</code>.
+                    Le navigateur l'interprète comme une vraie page HTML.
+                </p>
+            </details>
+        </div>
+    </article>
+
+    <!-- 11. Broken Access Control on /admin -->
+    <article class="vuln fam-authz">
+        <div class="vuln-header">
+            <span class="vuln-number">11</span>
+            <h3 class="vuln-title">Contrôle d'accès défaillant (/admin)</h3>
+            <span class="vuln-tag">Autorisation</span>
+        </div>
+        <div class="vuln-body">
+            <p class="challenge">
+                <strong>Défi :</strong> accédez à la page d'administration
+                (<code>/admin</code>) avec un compte qui n'est <em>pas</em> administrateur.
+            </p>
+
+            <details>
+                <summary><span class="hint-num">1</span> Indice</summary>
+                <p>
+                    La page <code>/admin</code> existe (elle est mentionnée dans le README).
+                    Qu'est-ce qui est censé vous empêcher d'y aller avec un compte lambda ?
+                    Le site vérifie-t-il seulement que <em>vous êtes connecté</em>, ou bien
+                    aussi <em>quel rôle</em> vous avez ?
+                </p>
+            </details>
+
+            <details>
+                <summary><span class="hint-num">2</span> Indice</summary>
+                <p>
+                    Créez un compte ordinaire, connectez-vous, puis tapez directement
+                    <code>http://localhost:5000/admin</code> dans la barre d'adresse.
+                    Que voyez-vous ? Cherchez dans <code>app.py</code> la différence entre
+                    "être connecté" et "être admin".
+                </p>
+            </details>
+        </div>
+    </article>
+
+</main>
+
+<footer>
+    <p>
+        Une fois toutes les failles trouvées et exploitées, proposez un correctif pour chacune
+        et vérifiez que le défi ne fonctionne plus.
+    </p>
+</footer>
+
+</body>
+</html>

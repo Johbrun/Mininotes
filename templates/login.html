@@ -1,0 +1,37 @@
+{# Page de connexion. #}
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Connexion</h1>
+
+{% if error %}
+    <p class="error">{{ error }}</p>
+{% endif %}
+
+<form method="post" action="{{ url_for('login') }}">
+    <label>
+        Nom d'utilisateur
+        <input type="text" name="username" required>
+    </label>
+
+    <label>
+        Mot de passe
+        <input type="password" name="password" required>
+    </label>
+
+    {#
+        Si l'utilisateur est arrivé sur la page de connexion depuis
+        un lien du type /login?next=/note/3, on garde cette
+        destination dans un champ caché pour pouvoir y retourner
+        après la connexion.
+    #}
+    <input type="hidden" name="next" value="{{ next_url }}">
+
+    <button type="submit">Se connecter</button>
+</form>
+
+<p>
+    Pas encore de compte ?
+    <a href="{{ url_for('register') }}">Créer un compte</a>
+</p>
+{% endblock %}

@@ -1,0 +1,33 @@
+{# Page de recherche dans ses notes. #}
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Rechercher dans mes notes</h1>
+
+{#
+    Formulaire GET : les paramètres sont passés dans l'URL
+    (visible dans la barre d'adresse).
+#}
+<form method="get" action="{{ url_for('search') }}" class="inline-form">
+    <input type="text" name="q" value="{{ q }}" placeholder="Mot-clé...">
+    <button type="submit">Chercher</button>
+</form>
+
+{% if q %}
+    <p>Résultats pour "{{ q|safe }}" :</p>
+
+    {% if results %}
+        <ul class="note-list">
+            {% for note in results %}
+                <li>
+                    <a href="{{ url_for('note_view', note_id=note.id) }}">
+                        {{ note.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucune note ne correspond.</p>
+    {% endif %}
+{% endif %}
+{% endblock %}

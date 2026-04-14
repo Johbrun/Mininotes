@@ -1,0 +1,29 @@
+{# Page d'accueil : liste des notes de l'utilisateur. #}
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Bonjour {{ user.username }}</h1>
+
+<p>
+    <a class="btn" href="{{ url_for('note_new') }}">+ Nouvelle note</a>
+</p>
+
+{% if notes %}
+    <ul class="note-list">
+        {#
+            On parcourt toutes les notes reçues depuis app.py et on
+            affiche un élément <li> pour chacune.
+        #}
+        {% for note in notes %}
+            <li>
+                <a href="{{ url_for('note_view', note_id=note.id) }}">
+                    {{ note.title }}
+                </a>
+                <span class="note-date">{{ note.created_at }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Vous n'avez pas encore de note.</p>
+{% endif %}
+{% endblock %}

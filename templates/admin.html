@@ -1,0 +1,23 @@
+{# Page d'administration : liste des utilisateurs. #}
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Administration</h1>
+
+<p>Liste des utilisateurs inscrits :</p>
+
+<table class="admin-table">
+    <tr>
+        <th>ID</th>
+        <th>Nom d'utilisateur</th>
+        <th>Administrateur</th>
+    </tr>
+    {% for u in users %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.username }}</td>
+            <td>{% if u.is_admin %}oui{% else %}non{% endif %}</td>
+        </tr>
+    {% endfor %}
+</table>
+{% endblock %}

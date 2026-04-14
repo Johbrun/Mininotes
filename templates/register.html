@@ -1,0 +1,33 @@
+{# Page d'inscription : formulaire pour créer un compte. #}
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Créer un compte</h1>
+
+{% if error %}
+    <p class="error">{{ error }}</p>
+{% endif %}
+
+{#
+    Un formulaire HTML. Quand l'utilisateur clique sur "Valider",
+    le navigateur envoie les champs (username, password) au serveur
+    via une requête POST vers /register.
+#}
+<form method="post" action="{{ url_for('register') }}">
+    <label>
+        Nom d'utilisateur
+        <input type="text" name="username" required>
+    </label>
+
+    <label>
+        Mot de passe
+        <input type="password" name="password" required>
+    </label>
+
+    <button type="submit">Valider</button>
+</form>
+
+<p>
+    Déjà un compte ? <a href="{{ url_for('login') }}">Se connecter</a>
+</p>
+{% endblock %}

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>MiniNotes</title>
+    {#
+        url_for("static", filename="style.css") génère l'URL
+        du fichier CSS stocké dans le dossier static/.
+    #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="{{ url_for('home') }}">MiniNotes</a>
+        <nav>
+            {#
+                session.get("user_id") permet de savoir si un utilisateur
+                est connecté. On affiche les liens en conséquence.
+            #}
+            {% if session.get("user_id") %}
+                <a href="{{ url_for('home') }}">Mes notes</a>
+                <a href="{{ url_for('note_new') }}">Nouvelle note</a>
+                <a href="{{ url_for('search') }}">Rechercher</a>
+                <a href="{{ url_for('profile') }}">Profil</a>
+                <a href="{{ url_for('logout') }}">Déconnexion</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Connexion</a>
+                <a href="{{ url_for('register') }}">Inscription</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="content">
+        {#
+            Le bloc "content" est celui que chaque page enfant va
+            remplir avec son propre contenu.
+        #}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

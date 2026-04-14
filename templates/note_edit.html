@@ -1,0 +1,25 @@
+{# Page de modification d'une note existante. #}
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Modifier la note</h1>
+
+<form method="post"
+      action="{{ url_for('note_edit', note_id=note.id) }}">
+    <label>
+        Titre
+        <input type="text" name="title" value="{{ note.title }}" required>
+    </label>
+
+    <label>
+        Contenu
+        <textarea name="content" rows="10">{{ note.content }}</textarea>
+    </label>
+
+    <button type="submit">Enregistrer</button>
+</form>
+
+<p>
+    <a href="{{ url_for('note_view', note_id=note.id) }}">Annuler</a>
+</p>
+{% endblock %}

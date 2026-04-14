@@ -1,0 +1,33 @@
+{# Page qui affiche une note. #}
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ note.title }}</h1>
+<p class="note-date">Créée le {{ note.created_at }}</p>
+
+{#
+    Le contenu de la note est affiché tel qu'il a été saisi, pour
+    permettre la mise en forme (balises <b>, <i>, liens, etc.).
+#}
+<div class="note-content">
+    {{ note.content|safe }}
+</div>
+
+<p class="actions">
+    <a class="btn" href="{{ url_for('note_edit', note_id=note.id) }}">Modifier</a>
+    <a class="btn" href="{{ url_for('note_export', note_id=note.id) }}">Télécharger (.txt)</a>
+
+    {#
+        Un bouton "Supprimer" placé dans un petit formulaire, car
+        une suppression doit être envoyée en POST (pas en simple GET).
+    #}
+    <form method="post"
+          action="{{ url_for('note_delete', note_id=note.id) }}"
+          class="inline-form"
+          onsubmit="return confirm('Supprimer cette note ?');">
+        <button type="submit" class="btn btn-danger">Supprimer</button>
+    </form>
+</p>
+
+<p><a href="{{ url_for('home') }}">&larr; Retour à la liste</a></p>
+{% endblock %}

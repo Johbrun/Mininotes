@@ -1,0 +1,38 @@
+{# Page de profil : informations de l'utilisateur et upload d'avatar. #}
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Mon profil</h1>
+
+{% if message %}
+    <p class="info">{{ message }}</p>
+{% endif %}
+
+<p><strong>Nom d'utilisateur :</strong> {{ user.username }}</p>
+
+{% if user.avatar %}
+    <p>
+        <img class="avatar"
+             src="{{ url_for('uploads', filename=user.avatar) }}"
+             alt="Avatar">
+    </p>
+{% else %}
+    <p><em>Pas encore d'avatar.</em></p>
+{% endif %}
+
+{#
+    Pour envoyer un fichier, il faut ajouter enctype="multipart/form-data"
+    au formulaire. Sans ça, seul le nom du fichier serait envoyé,
+    pas son contenu.
+#}
+<form method="post"
+      action="{{ url_for('profile') }}"
+      enctype="multipart/form-data">
+    <label>
+        Nouvel avatar
+        <input type="file" name="avatar">
+    </label>
+
+    <button type="submit">Envoyer</button>
+</form>
+{% endblock %}
