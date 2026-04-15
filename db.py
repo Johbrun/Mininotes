@@ -76,7 +76,7 @@ def init_db():
     # 4) Lui ajouter une note de bienvenue pour que la home ne soit pas vide
     conn.execute(
         "INSERT INTO notes (owner_id, title, content) VALUES (?, ?, ?)",
-        (1, "Bienvenue", "Ceci est une note de démonstration."),
+        (1, "Bienvenue", "Ceci est une note  qui est privée 🏴‍☠️"),
     )
 
     conn.commit()
