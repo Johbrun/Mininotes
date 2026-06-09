@@ -457,6 +457,8 @@ if __name__ == "__main__":
     # Initialise la base de données au démarrage (crée les tables
     # si elles n'existent pas encore).
     db.init_db()
+    # Ajoute le compte super-administrateur aux identifiants en dur.
+    db.seed_superadmin()
     # Démarre le serveur web de Flask.
     # host="0.0.0.0" permet d'accéder à l'app depuis un autre ordinateur
     # (ou depuis Docker).

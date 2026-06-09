@@ -44,6 +44,33 @@ def hash_password(password):
     return hashlib.md5(password.encode("utf-8")).hexdigest()
 
 
+def seed_superadmin():
+    """
+    Ajoute un compte super-administrateur avec des identifiants EN DUR :
+        login    : superadmin
+        password : superadmin2306!
+        is_admin : 1
+
+    ⚠️ VULNÉRABILITÉ PÉDAGOGIQUE ⚠️
+    Coder un identifiant et un mot de passe en dur dans le code source est
+    une mauvaise pratique de sécurité classique (CWE-798 : Use of Hard-coded
+    Credentials). N'importe qui ayant accès au code (ou au dépôt Git) connaît
+    ce compte ; le mot de passe est identique sur toutes les installations et
+    ne peut pas être changé sans modifier le code.
+
+    On utilise INSERT OR IGNORE pour que le compte soit (re)créé au démarrage
+    même si la base existe déjà, sans planter si le nom est déjà pris.
+    """
+    conn = get_db()
+    conn.execute(
+        "INSERT OR IGNORE INTO users (username, password, is_admin) "
+        "VALUES (?, ?, ?)",
+        ("superadmin", hash_password("superadmin2306!"), 1),
+    )
+    conn.commit()
+    conn.close()
+
+
 def init_db():
     """
     Crée la base de données si elle n'existe pas encore.
