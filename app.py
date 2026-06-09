@@ -13,6 +13,7 @@ Ensuite, ouvrez http://localhost:5000 dans votre navigateur.
 """
 
 import os
+import yaml
 from flask import (
     Flask, request, redirect, url_for, render_template,
     session, send_file, abort, make_response,
@@ -251,6 +252,59 @@ def note_new():
         return redirect(url_for("home"))
 
     return render_template("new_note.html")
+
+
+@app.route("/note/import", methods=["GET", "POST"])
+@login_required
+def note_import():
+    """
+    Importe une note depuis un fichier YAML.
+
+    Le fichier doit décrire une note, par exemple :
+
+        title: Mes courses
+        content: |
+          - pain
+          - café
+        is_public: false
+
+    On lit le fichier envoyé et on recrée la note dans la base.
+    """
+    user = current_user()
+    error = None
+
+    if request.method == "POST":
+        file = request.files.get("file")
+        if not file or not file.filename:
+            error = "Veuillez choisir un fichier YAML."
+        else:
+            try:
+                # On charge le contenu YAML pour récupérer la note décrite
+                # dans le fichier.
+                data = yaml.load(file.read())
+            except Exception as exc:  # noqa: BLE001
+                return render_template(
+                    "import_note.html", error="Fichier YAML invalide : %s" % exc
+                )
+
+            title = str(data.get("title", "")).strip()
+            content = str(data.get("content", ""))
+            is_public = 1 if data.get("is_public") else 0
+
+            if not title:
+                error = "Le fichier doit contenir un champ 'title'."
+            else:
+                conn = db.get_db()
+                conn.execute(
+                    "INSERT INTO notes (owner_id, title, content, is_public) "
+                    "VALUES (?, ?, ?, ?)",
+                    (user["id"], title, content, is_public),
+                )
+                conn.commit()
+                conn.close()
+                return redirect(url_for("home"))
+
+    return render_template("import_note.html", error=error)
 
 
 @app.route("/note/<int:note_id>")

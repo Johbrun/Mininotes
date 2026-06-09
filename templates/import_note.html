@@ -1,0 +1,28 @@
+{# Page d'import d'une note depuis un fichier YAML. #}
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Importer une note (YAML)</h1>
+
+{% if error %}
+    <p class="error">{{ error }}</p>
+{% endif %}
+
+<p>
+    Choisissez un fichier <code>.yaml</code> décrivant une note avec les
+    champs <code>title</code>, <code>content</code> et
+    (optionnellement) <code>is_public</code>.
+</p>
+
+<form method="post" action="{{ url_for('note_import') }}"
+      enctype="multipart/form-data">
+    <label>
+        Fichier YAML
+        <input type="file" name="file" accept=".yaml,.yml" required>
+    </label>
+
+    <button type="submit">Importer</button>
+</form>
+
+<p><a href="{{ url_for('home') }}">Annuler</a></p>
+{% endblock %}

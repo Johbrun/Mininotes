@@ -101,3 +101,4 @@ La base sera recréée au prochain lancement.
 - XSS réfléchie
 - Absence de protection CSRF
 - Fuite de secret
+- Désérialisation non sûre → RCE (dépendance vulnérable : `PyYAML==5.3.1`, CVE-2020-14343)
