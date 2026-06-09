@@ -39,7 +39,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 # 4. Lancer l'application
-python app.py
+python3 app.py
 ```
 
 L'application est alors accessible sur <http://localhost:5000>.
