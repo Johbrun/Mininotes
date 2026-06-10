@@ -1,4 +1,4 @@
-name: Security
+name: Securityyyyy
 
 on:
   push: # se lance à chaque commit poussé, sur toutes les branches
@@ -14,8 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Run gitleaks
         uses: gitleaks/gitleaks-action@v2
@@ -28,8 +26,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Trivy on dependencies
-        uses: aquasecurity/trivy-action@0.28.0
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scanners: vuln
