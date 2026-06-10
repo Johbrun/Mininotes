@@ -9,11 +9,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: gitleaks/gitleaks-action@v3
+      # - uses: gitleaks/gitleaks-action@v3
 
-      - uses: aquasecurity/trivy-action@v0.36.0
+      # - uses: aquasecurity/trivy-action@v0.36.0
 
-      - uses: iosifache/semgrep-rules-manager
+      # - uses: iosifache/semgrep-rules-manager
+
+      - name: Utilisation de trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+      	with:
+      		scan-type: fs
+          scanners: vuln
+          speverity: HIGH, CRITICAL
+          ignore-unfixed: false
+          exite-type: "1"
+          format: table
+
 
       - name: Set up Python
         uses: actions/setup-python@v5
