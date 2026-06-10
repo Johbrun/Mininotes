@@ -15,8 +15,9 @@ jobs:
           fetch-depth: 0
       
       - name: Trivy
-        uses: aquasecurity/trivy-action@v0.2
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           severity: HIGH,CRITICAL
           format: table
+          exit-code: "1"
