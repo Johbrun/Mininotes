@@ -5,23 +5,15 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: test/Mininotes
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
-      # - uses: gitleaks/gitleaks-action@v3
+      - uses: gitleaks/gitleaks-action@v3
 
       - uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          scan-type: fs
-          scan-path: .
 
-      # - uses: iosifache/semgrep-rules-manager
+      - uses: iosifache/semgrep-rules-manager
 
       - name: Set up Python
         uses: actions/setup-python@v5
