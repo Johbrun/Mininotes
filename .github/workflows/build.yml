@@ -13,7 +13,7 @@ jobs:
 
       - uses: aquasecurity/trivy-action@v0.36.0
 
-      - uses: iosifache/semgrep-rules-manager
+      # - uses: iosifache/semgrep-rules-manager
 
       - name: Set up Python
         uses: actions/setup-python@v5
