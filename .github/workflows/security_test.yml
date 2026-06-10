@@ -18,3 +18,4 @@ jobs:
         uses: lazy-actions/gitrivy@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          image: 'node:18-alpine'
