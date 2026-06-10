@@ -15,7 +15,7 @@ jobs:
           fetch-depth: 0
       
       - name: Trivy
-        uses: lazy-actions/gitrivy@v1
+        uses: aquasecurity/trivy-action@v0.2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          image: mininotes:latest
+          scan-type: fs
+          severity: HIGH,CRITICAL
