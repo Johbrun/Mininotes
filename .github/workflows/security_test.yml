@@ -19,3 +19,4 @@ jobs:
         with:
           scan-type: fs
           severity: HIGH,CRITICAL
+          format: table
