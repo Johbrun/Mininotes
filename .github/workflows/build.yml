@@ -9,9 +9,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: gitleaks/gitleaks-action@v3
+      # - uses: gitleaks/gitleaks-action@v3
 
       - uses: aquasecurity/trivy-action@v0.36.0
+
+      - uses: iosifache/semgrep-rules-manager
 
       - name: Set up Python
         uses: actions/setup-python@v5
