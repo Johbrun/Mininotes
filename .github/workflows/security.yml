@@ -1,0 +1,61 @@
+name: Security
+
+# Pipeline de sécurité : secrets, SCA (dépendances) et SAST (code).
+# Chaque job échoue (et bloque le merge) si une détection dépasse le seuil défini.
+
+on:
+  push: # se lance à chaque commit poussé, sur toutes les branches
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # 1. Détection de secrets — échoue si un secret est trouvé
+  gitleaks:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # historique complet pour scanner tous les commits
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # gitleaks-action sort en code != 0 si un secret est détecté → job en échec
+
+  # 2. SCA — analyse des dépendances, échoue sur CVE HIGH / CRITICAL
+  sca:
+    name: SCA (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy on dependencies
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: false
+          exit-code: '1' # échoue le job si au moins une CVE HIGH/CRITICAL est trouvée
+          format: table
+
+  # 3. SAST — analyse statique du code, échoue sur findings HIGH / CRITICAL
+  semgrep:
+    name: SAST (semgrep)
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run semgrep
+        run: semgrep ci --config=auto --severity=ERROR --error
+        env:
+          # Bloque uniquement sur les règles de sévérité ERROR (équivalent HIGH/CRITICAL).
+          # --error force un code de sortie != 0 en cas de findings → job en échec.
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
