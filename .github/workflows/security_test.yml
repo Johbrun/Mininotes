@@ -11,11 +11,11 @@ jobs:
 
       - name: Gitleaks
         uses: gitleaks/gitleaks-action@v3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          fetch-depth: 0
       
       - name: Trivy
         uses: lazy-actions/gitrivy@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          image: 'node:18-alpine'
+          image: sample
